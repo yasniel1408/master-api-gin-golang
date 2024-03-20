@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	albums_application "github.com/yasniel1408/master-api-gin-golang/albums/application"
-	albums_models "github.com/yasniel1408/master-api-gin-golang/albums/domine/models"
-	albums_ports "github.com/yasniel1408/master-api-gin-golang/albums/domine/ports"
+	albums_models "github.com/yasniel1408/master-api-gin-golang/albums/domain/models"
+	albums_ports "github.com/yasniel1408/master-api-gin-golang/albums/domain/ports"
 )
 
 type AlbumController struct {

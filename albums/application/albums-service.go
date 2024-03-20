@@ -3,7 +3,7 @@ package albums_application
 import (
 	"errors"
 
-	albums_models "github.com/yasniel1408/master-api-gin-golang/albums/domine/models"
+	albums_models "github.com/yasniel1408/master-api-gin-golang/albums/domain/models"
 )
 
 var albums = []albums_models.Album{

@@ -1,1 +1,23 @@
+### Get all albums
 GET http://localhost:8000/albums
+
+### Save album
+
+POST http://localhost:8000/albums
+Content-Type: application/json
+
+{
+    "id": "10",
+    "title": "The Wall",
+    "artist": "Pink Floyd",
+    "year": 1979
+}
+
+### Get one album
+
+GET http://localhost:8000/albums/2
+
+
+### Delete album
+
+DELETE http://localhost:8000/albums/2

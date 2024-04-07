@@ -1,28 +1,35 @@
-package albums_infrastructure
+package albums_infrastructure_in
 
 import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	albums_application "github.com/yasniel1408/master-api-gin-golang/albums/application"
-	albums_models "github.com/yasniel1408/master-api-gin-golang/albums/domain/models"
 	albums_ports "github.com/yasniel1408/master-api-gin-golang/albums/domain/ports"
+	albums_infrastructure_dto "github.com/yasniel1408/master-api-gin-golang/albums/infrastructure/in-adapters/dto"
 )
 
 type AlbumController struct {
-	albums_ports.AlbumControllerInterface
+	albums_ports.AlbumHttpInterfacePort
+	albums_application.AlbumService
 }
 
 func (e *AlbumController) GetAlbumsController(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, albums_application.GetAlbumsService())
+	c.IndentedJSON(http.StatusOK, e.GetAlbumsService())
 }
 
 func (e *AlbumController) NewAlbumsController(c *gin.Context) {
-	var newAlbum albums_models.Album
-
+	var newAlbum albums_infrastructure_dto.AlbumDTO
 	c.BindJSON(&newAlbum)
 
-	var albums = albums_application.SaveAlbumsService(newAlbum)
+	var _, error = newAlbum.Validate()
+
+	if error != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": error.Error()})
+		return
+	}
+
+	var albums = e.SaveAlbumsService(newAlbum)
 
 	c.IndentedJSON(http.StatusOK, albums)
 }
@@ -30,7 +37,7 @@ func (e *AlbumController) NewAlbumsController(c *gin.Context) {
 func (e *AlbumController) GetAlbumController(c *gin.Context) {
 	albumID := c.Param("id")
 
-	var album, error = albums_application.GetAlbumService(albumID)
+	var album, error = e.GetAlbumService(albumID)
 
 	if error != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": error.Error()})
@@ -41,10 +48,9 @@ func (e *AlbumController) GetAlbumController(c *gin.Context) {
 }
 
 func (e *AlbumController) DeleteAlbumsController(c *gin.Context) {
-	var albumID string
-	c.BindJSON(&albumID)
+	albumID := c.Param("id")
 
-	var albums, error = albums_application.DeleteAlbumsService(albumID)
+	var albums, error = e.DeleteAlbumsService(albumID)
 
 	if error != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{"message": error.Error()})

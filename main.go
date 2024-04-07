@@ -1,15 +1,29 @@
 package main
 
 import (
+	"fmt"
+	"github.com/yasniel1408/master-api-gin-golang/shared"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	albums_infrastructure "github.com/yasniel1408/master-api-gin-golang/albums/infrastructure"
+	albums_infrastructure_in "github.com/yasniel1408/master-api-gin-golang/albums/infrastructure/in-adapters"
+	auth_infrastructure_in "github.com/yasniel1408/master-api-gin-golang/auth/infrastructure/in-adapters"
 )
+
+func init() {
+	// load envs
+	shared.LoadEnvs()
+	// Conectar a DB
+	shared.ConnectGorm()
+}
 
 func main() {
 	routers := gin.Default()
-	// config cors
+	var ginmode = os.Getenv("GIN_MODE")
+	gin.SetMode(ginmode)
+	// Config Middleware
+	// CORS
 	routers.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -22,26 +36,28 @@ func main() {
 		}
 		c.Next()
 	})
-
-	var albumsRouter = albums_infrastructure.AlbumController{}
+	// Logger
+	routers.Use(gin.Logger())
 
 	// rutas
-	routers.GET("/albums", albumsRouter.GetAlbumsController)
-	routers.POST("/albums", albumsRouter.NewAlbumsController)
-	routers.GET("/albums/:id", albumsRouter.GetAlbumController)
-	routers.DELETE("/albums/:id", albumsRouter.DeleteAlbumsController)
+	albums_infrastructure_in.AlbumRouter(routers)
+	auth_infrastructure_in.AuthRouter(routers)
 	routers.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})
 	})
 
-	// config server
+	// Config Server
+	var port = ":" + os.Getenv("PORT")
 	server := &http.Server{
-		Addr:    ":8000",
+		Addr:    port,
 		Handler: routers,
 	}
 
-	// run server
-	server.ListenAndServe()
+	// Run Server
+	err := server.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+	}
 }

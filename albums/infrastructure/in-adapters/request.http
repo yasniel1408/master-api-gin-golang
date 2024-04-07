@@ -7,7 +7,6 @@ POST http://localhost:8000/albums
 Content-Type: application/json
 
 {
-    "id": "10",
     "title": "The Wall",
     "artist": "Pink Floyd",
     "year": 1979
